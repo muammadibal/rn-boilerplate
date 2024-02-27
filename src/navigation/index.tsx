@@ -82,7 +82,7 @@ export const tabs = [
 
 const MainApp = ({navigation, route}: any) => {
     const {theme: appTheme} = useAppSelector(appSelector)
-    const backgroundColor = appTheme === 'dark' ? theme.background.dark : theme.background.light
+    const backgroundColor = appTheme === 'dark' ? color.grey[600] : color.white[500]
 
     return <>
         <Tab.Navigator activeColor={tColor.gold[500]}
@@ -107,14 +107,14 @@ const MainApp = ({navigation, route}: any) => {
 
 const Router = () => {   
   const {theme: appTheme} = useAppSelector(appSelector)
-  const theme = {
+  const paperTheme = {
     ...MD3LightTheme,
     roundness: 10,
-    colors: appTheme === 'dark' ? MD3DarkTheme.colors : MD3LightTheme.colors,
+    colors: appTheme === 'dark' ? {...MD3DarkTheme.colors, background: theme.background.dark, onBackground: theme.background.light} : {...MD3LightTheme.colors, background: theme.background.light, onBackground: theme.background.dark},
   };
 
   return (
-    <PaperProvider theme={theme}>
+    <PaperProvider theme={paperTheme}>
       <NavigationContainer ref={navigationRef}>
           <Stack.Navigator 
               screenOptions={{ 

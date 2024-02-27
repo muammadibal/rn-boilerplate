@@ -20,14 +20,15 @@ type TypeHeader = {
 
 const Header = ({onBack, title, actions}: TypeHeader) => {
     const {theme: appTheme} = useAppSelector(appSelector)
-    const backgroundColor = appTheme === 'dark' ? "#292929": theme.background.light
+    const backBtnBgColor = appTheme === 'dark' ? "#292929": theme.background.light
+    const backgroundColor = appTheme === 'dark' ? theme.background.dark : theme.background.light
     const navigation = useNavigation()
     const route = useRoute()
     const isMainApp = tabs.find(v => v.name === route.name)
 
     return (
-        <Appbar.Header mode='center-aligned'>
-        {isMainApp ? null : <Appbar.BackAction size={18} style={{ backgroundColor, borderRadius: 10 }} onPress={() => {
+        <Appbar.Header mode='center-aligned' style={{ backgroundColor }}>
+        {isMainApp ? null : <Appbar.BackAction size={18} style={{ backgroundColor: backBtnBgColor, borderRadius: 10 }} onPress={() => {
             if (onBack) onBack()
             else navigation.goBack()
         }} />}
