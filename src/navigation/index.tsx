@@ -5,7 +5,10 @@ import { Help, Home, Order, OrderHistory, Profile } from '../pages';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createMaterialBottomTabNavigator } from '@react-navigation/material-bottom-tabs';
 import FontAwesome6 from 'react-native-vector-icons/FontAwesome6'
-import { color as tColor } from '../utils/constant';
+import { color, color as tColor, theme } from '../utils/constant';
+import { MD3DarkTheme, PaperProvider, MD3LightTheme } from 'react-native-paper';
+import { useAppSelector } from '../redux/hooks';
+import { appSelector } from '../redux/reducers';
 
 const Tab = createMaterialBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -41,68 +44,88 @@ export function reset(params: any) {
 
 export function isTabActive(tabName: string): boolean {
     const route = useNavigationState(state => state.routes[state.index]);
-    return getFocusedRouteNameFromRoute(route) === tabName;
+    return route.name === tabName;
 }
 
-const CenterButton = ({ onPress }: {onPress: any}) => (
-    <TouchableOpacity onPress={onPress} style={{position: 'absolute', bottom: 90, left: '50%', marginLeft: -30, zIndex: 10, backgroundColor: tColor.gold[500], width: 60, height: 60, borderRadius: 25, justifyContent: 'center', alignItems: 'center', borderWidth: 6, borderColor: tColor.black[500]}}>
-      <FontAwesome6 name="scissors" color={tColor.black[500]} size={24}/>
+const CenterButton = ({ onPress, backgroundColor }: {onPress: any; backgroundColor?: string;}) => (
+    <TouchableOpacity onPress={onPress} style={{position: 'absolute', bottom: 90, left: '50%', marginLeft: -30, zIndex: 10, backgroundColor: tColor.gold[500], width: 60, height: 60, borderRadius: 25, justifyContent: 'center', alignItems: 'center', borderWidth: 6, borderColor: backgroundColor}}>
+      <FontAwesome6 name="scissors" color={backgroundColor} size={24}/>
     </TouchableOpacity>
 );
 
+export const tabs = [
+  {
+    name: "Home",
+    label: "Home",
+    component: Home,
+    icon: "house",
+  },
+  {
+    name: "OrderHistory",
+    label: "Order",
+    component: OrderHistory,
+    icon: "table-list",
+  },
+  {
+    name: "Help",
+    label: "Help",
+    component: Help,
+    icon: "headset",
+  },
+  {
+    name: "Profile",
+    label: "Profile",
+    component: Profile,
+    icon: "user",
+  },
+]
+
 const MainApp = ({navigation, route}: any) => {
+    const {theme: appTheme} = useAppSelector(appSelector)
+    const backgroundColor = appTheme === 'dark' ? theme.background.dark : theme.background.light
+
     return <>
         <Tab.Navigator activeColor={tColor.gold[500]}
-        inactiveColor={tColor.grey[500]} barStyle={{ backgroundColor: tColor.black[500] }} activeIndicatorStyle={{ 
+        inactiveColor={tColor.grey[500]} barStyle={{ backgroundColor }} activeIndicatorStyle={{ 
             height: 4,
             backgroundColor: tColor.gold[500],
             marginBottom: "auto",
             marginTop: -12,
         }}>
-            <Tab.Screen name="Home" component={Home} options={{
-            tabBarLabel: 'Home',
-            tabBarColor: tColor.gold[500],
-            tabBarIcon: ({ focused, color }) => (
-                <FontAwesome6 name="house" color={color} size={22} />
-            ),
-            }}/>
-            <Tab.Screen name="OrderHistory" component={OrderHistory} options={{
-            tabBarLabel: 'Order',
-            tabBarIcon: ({ focused, color }) => (
-                <FontAwesome6 name="table-list" color={color} size={26} />
-            ),
-            }}/>
-            <Tab.Screen name="Help" component={Help} options={{
-            tabBarLabel: 'Help',
-            tabBarIcon: ({ focused, color }) => (
-                <FontAwesome6 name="headset" color={color} size={26} />
-            ),
-            }}/>
-            <Tab.Screen name="Profile" component={Profile} options={{
-            tabBarLabel: 'Profile',
-            tabBarIcon: ({ focused, color }) => (
-                <FontAwesome6 name="user" color={color} size={26} />
-            ),
-            }}/>
+          {tabs.map(v => {
+            return <Tab.Screen key={v.label} name={v.name} component={v.component} options={{
+              tabBarLabel: v.label,
+              tabBarIcon: ({ focused, color }) => (
+                <FontAwesome6 name={v.icon} size={26} color={color} />
+              ),
+              }}/>
+          })}            
         </Tab.Navigator>
-        {route?.name === 'MainApp' ? <CenterButton onPress={() => navigate("Order")}/> : null}
+        {route?.name === 'MainApp' ? <CenterButton backgroundColor={backgroundColor} onPress={() => navigate("Order")}/> : null}
     </>
 }
 
-const Router = () => {    
+const Router = () => {   
+  const {theme: appTheme} = useAppSelector(appSelector)
+  const theme = {
+    ...MD3LightTheme,
+    roundness: 10,
+    colors: appTheme === 'dark' ? MD3DarkTheme.colors : MD3LightTheme.colors,
+  };
+
   return (
-    <NavigationContainer ref={navigationRef}>
-        <Stack.Navigator 
-            // screenOptions={{ 
-            //     headerShown: false
-            // }}
-        >
-            <Stack.Screen name="MainApp" component={MainApp} options={{ 
-                headerShown: false
-             }} />
-            <Stack.Screen name="Order" component={Order} />
-        </Stack.Navigator>
-    </NavigationContainer>
+    <PaperProvider theme={theme}>
+      <NavigationContainer ref={navigationRef}>
+          <Stack.Navigator 
+              screenOptions={{ 
+                  headerShown: false
+              }}
+          >
+              <Stack.Screen name="MainApp" component={MainApp}/>
+              <Stack.Screen name="Order" component={Order} />
+          </Stack.Navigator>
+      </NavigationContainer>
+    </PaperProvider>
   )
 }
 

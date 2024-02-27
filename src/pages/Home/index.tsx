@@ -1,11 +1,14 @@
 import { View, Text } from 'react-native'
 import React from 'react'
+import Container from '../../components/Container'
+import Header from '../../components/Header'
 
 const Home = () => {
   return (
-    <View>
+    <Container>
+      <Header title='Home'/>
       <Text>Home</Text>
-    </View>
+    </Container>
   )
 }
 
